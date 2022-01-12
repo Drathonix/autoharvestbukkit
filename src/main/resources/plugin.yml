@@ -1,0 +1,6 @@
+name: AutoHarvest
+version: ${project.version}
+main: com.drathonix.autoharvest.AutoHarvest
+api-version: 1.18
+authors: [ Drathonix ]
+description: A farming mod that makes "place clicking" crops harvest them without destroying them and also grants dispensers the same ability.
