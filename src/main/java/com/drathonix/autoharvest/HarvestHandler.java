@@ -6,6 +6,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.entity.Player;
@@ -40,26 +41,22 @@ public class HarvestHandler implements Listener{
             //Do not interfere with vanilla automealing.
             Vector facing = ((Directional)b.getBlockData()).getFacing().getDirection();
             Block target = b.getWorld().getBlockAt(b.getLocation().add(facing));
+            BlockData bd = target.getBlockData();
             //Cancel only if a harvest activated.
             handleCropHarvest(target,ev.getItem(),ev.getBlock());
             if(ev.getItem().getType() != Material.BONE_MEAL) ev.setCancelled(MaterialValidator.isCropBlock(target));
-            else ev.setCancelled(isFullyGrown(target));
+            else ev.setCancelled(MaterialValidator.isFullyGrown(bd));
         }
     }
 
-    private boolean isFullyGrown(Block target) {
-        Ageable dat = (Ageable) target.getBlockData();
-        return dat.getAge() == dat.getMaximumAge();
-    }
-
     public boolean handleCropHarvest(Block target, ItemStack harvestItem, Object harvester) {
-        if (harvester instanceof Player && MaterialValidator.isCropAndFullyGrown(target)) {
+        if (harvester instanceof Player && MaterialValidator.isPlayerHarvestable(target)) {
             Collection<ItemStack> drops = removeOneSeed(target.getDrops(harvestItem));
             Player plr = (Player) harvester;
             Map<Integer, ItemStack> remainder = plr.getInventory().addItem(drops.toArray(new ItemStack[0]));
             dropAt(target.getLocation(), target.getWorld(), remainder.values());
         }
-        else if(MaterialValidator.shouldDispenserHarvest(target)){
+        else if(MaterialValidator.isDispenserHarvestable(target)){
             Collection<ItemStack> drops = removeOneSeed(target.getDrops(harvestItem));
             dropAt(target.getLocation(), target.getWorld(),drops);
         }
